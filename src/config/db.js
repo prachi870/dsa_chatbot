@@ -8,10 +8,13 @@ const config   = require('./index');
 
 const pool = new Pool({
   connectionString: config.db.connectionString,
-  // Keep a small pool for a typical Express app
   max: 10,
   idleTimeoutMillis: 30_000,
   connectionTimeoutMillis: 5_000,
+  // Required for Supabase and most cloud Postgres providers
+  ssl: process.env.NODE_ENV === 'production'
+    ? { rejectUnauthorized: false }
+    : false,
 });
 
 pool.on('error', (err) => {
