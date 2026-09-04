@@ -3,7 +3,7 @@
   "outputDirectory": "dist",
   "framework": "vite",
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "https://dsa-chatbot-backend.onrender.com/api/$1" },
+    { "source": "/api/(.*)", "destination": "https://dsa-chatbot-v8z7.onrender.com/api/$1" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "headers": [
