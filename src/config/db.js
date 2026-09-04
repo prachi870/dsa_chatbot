@@ -15,6 +15,8 @@ const pool = new Pool({
   ssl: process.env.NODE_ENV === 'production'
     ? { rejectUnauthorized: false }
     : false,
+  // Supabase transaction pooler doesn't support prepared statements
+  ...(process.env.NODE_ENV === 'production' && { statement_timeout: 10000 }),
 });
 
 pool.on('error', (err) => {
