@@ -1,5 +1,7 @@
 import axios from 'axios'
 
+// In dev: Vite proxy forwards /api → localhost:5000
+// In production (Vercel): vercel.json rewrites /api → Render backend
 const api = axios.create({ baseURL: '/api' })
 
 // Attach JWT on every request
