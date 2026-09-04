@@ -1,0 +1,42 @@
+-- DSABot Database Schema
+-- Run this once to initialize the database, or use db/migrate.js
+
+-- Enable UUID generation
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
+-- ============================================================
+-- Users
+-- ============================================================
+CREATE TABLE IF NOT EXISTS users (
+  id          UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  name        VARCHAR(100) NOT NULL,
+  email       VARCHAR(255) NOT NULL UNIQUE,
+  password_hash TEXT       NOT NULL,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- ============================================================
+-- Chat Sessions
+-- ============================================================
+CREATE TABLE IF NOT EXISTS sessions (
+  id          UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id     UUID        REFERENCES users(id) ON DELETE CASCADE,
+  title       VARCHAR(255) NOT NULL DEFAULT 'New Chat',
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON sessions(user_id);
+
+-- ============================================================
+-- Messages
+-- ============================================================
+CREATE TABLE IF NOT EXISTS messages (
+  id          UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  session_id  UUID        NOT NULL REFERENCES sessions(id) ON DELETE CASCADE,
+  role        VARCHAR(10) NOT NULL CHECK (role IN ('user', 'bot')),
+  content     TEXT        NOT NULL,
+  language    VARCHAR(20),                      -- preferred code language hint
+  timestamp   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_messages_session_id ON messages(session_id);
