@@ -1,0 +1,28 @@
+import axios from 'axios'
+
+// In dev: Vite proxy forwards /api → localhost:5000
+// In production (Vercel): vercel.json rewrites /api → Render backend
+const api = axios.create({ baseURL: '/api' })
+
+// Attach JWT on every request
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token')
+  if (token) config.headers.Authorization = `Bearer ${token}`
+  return config
+})
+
+// On 401, clear the stale session and reload — App.jsx will silently
+// bootstrap a fresh guest session with no login page involved.
+api.interceptors.response.use(
+  (res) => res,
+  (err) => {
+    if (err.response?.status === 401) {
+      localStorage.removeItem('token')
+      localStorage.removeItem('user')
+      window.location.href = '/'
+    }
+    return Promise.reject(err)
+  }
+)
+
+export default api
