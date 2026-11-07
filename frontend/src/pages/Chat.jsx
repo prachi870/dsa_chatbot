@@ -62,10 +62,16 @@ export default function Chat() {
       }
       addMessage(botMsg)
     } catch (err) {
+      console.error('Chat error:', err);
+      console.error('Error response:', err.response?.data);
+      console.error('Error status:', err.response?.status);
+      
+      const errorMsg = err.response?.data?.error || err.message || 'Something went wrong';
+      
       addMessage({
         _tempId:   Date.now() + 1,
         role:      'bot',
-        content:   '⚠️ Something went wrong. Please try again.',
+        content:   `⚠️ Error: ${errorMsg}`,
         timestamp: new Date().toISOString(),
       })
     } finally {

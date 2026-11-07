@@ -55,6 +55,10 @@ If a question is unrelated to DSA (e.g., cooking, CSS styling, medical questions
  * @returns {Promise<string>}   The assistant's reply.
  */
 async function chat(history, userMessage, language) {
+  console.log('[groqService] Starting chat request');
+  console.log('[groqService] API Key present:', !!config.groq.apiKey);
+  console.log('[groqService] Model:', config.groq.model);
+  
   // Optionally inject a language preference into the user message
   const userContent = language
     ? `[Preferred code language: ${language}]\n\n${userMessage}`
@@ -70,14 +74,23 @@ async function chat(history, userMessage, language) {
     { role: 'user', content: userContent },
   ];
 
-  const completion = await getClient().chat.completions.create({
-    model:       config.groq.model,
-    messages,
-    max_tokens:  2048,
-    temperature: 0.4, // keep answers focused and consistent
-  });
+  console.log('[groqService] Sending request with', messages.length, 'messages');
+  
+  try {
+    const completion = await getClient().chat.completions.create({
+      model:       config.groq.model,
+      messages,
+      max_tokens:  2048,
+      temperature: 0.4, // keep answers focused and consistent
+    });
 
-  return completion.choices[0].message.content;
+    console.log('[groqService] Response received successfully');
+    return completion.choices[0].message.content;
+  } catch (error) {
+    console.error('[groqService] Error calling Groq API:', error);
+    console.error('[groqService] Error details:', error.message);
+    throw error;
+  }
 }
 
 module.exports = { chat };

@@ -64,10 +64,17 @@ router.get('/sessions', async (req, res) => {
 // ── POST /api/chat ────────────────────────────────────────────────────────────
 
 router.post('/', async (req, res) => {
+  console.log('[chat/post] Received request:', { 
+    message: req.body.message?.substring(0, 50), 
+    sessionId: req.body.sessionId,
+    userId: req.user?.id 
+  });
+  
   try {
     const { message, sessionId, language } = req.body;
 
     if (!message || typeof message !== 'string' || !message.trim()) {
+      console.log('[chat/post] Invalid message');
       return res.status(400).json({ error: 'message is required.' });
     }
 
@@ -123,7 +130,9 @@ router.post('/', async (req, res) => {
     );
 
     // ── Call Claude ───────────────────────────────────────────────────────────
+    console.log('[chat/post] Calling Groq API with', historyResult.rows.length, 'history messages');
     const reply = await groqService.chat(historyResult.rows, message.trim(), language);
+    console.log('[chat/post] Groq API response received:', reply.substring(0, 100));
 
     // ── Persist both messages ─────────────────────────────────────────────────
     await query(
@@ -137,7 +146,9 @@ router.post('/', async (req, res) => {
 
     res.json({ sessionId: resolvedSessionId, reply, inScope: true });
   } catch (err) {
-    console.error('[chat/post]', err);
+    console.error('[chat/post] Error:', err);
+    console.error('[chat/post] Error stack:', err.stack);
+    console.error('[chat/post] Error message:', err.message);
     res.status(500).json({ error: 'Internal server error.' });
   }
 });

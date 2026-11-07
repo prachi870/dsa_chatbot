@@ -62,7 +62,10 @@ router.post('/signup', async (req, res) => {
 
     res.status(201).json({ token, user: { id: user.id, name: user.name, email: user.email } });
   } catch (err) {
-    console.error('[auth/signup]', err);
+    console.error('[auth/signup] error:', err.message);
+    if (err.code === 'XX000' || err.code === 'ENOTFOUND') {
+      return res.status(503).json({ error: 'Database is currently unavailable. Please try again later or contact support.' });
+    }
     res.status(500).json({ error: 'Internal server error.' });
   }
 });
