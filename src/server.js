@@ -18,8 +18,9 @@ async function start() {
     console.warn('[server]    Make sure DATABASE_URL is set and PostgreSQL is running.');
   }
 
-  app.listen(config.port, () => {
+  app.listen(config.port, '0.0.0.0', () => {
     console.log(`[server] 🚀 DSABot backend running on http://localhost:${config.port}`);
+    console.log(`[server]    Also accessible from Docker via http://host.docker.internal:${config.port}`);
     console.log(`[server]    Environment : ${config.nodeEnv}`);
     console.log(`[server]    Health check: http://localhost:${config.port}/health`);
   });
